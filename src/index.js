@@ -20,24 +20,27 @@ class Board extends React.Component {
     );
   }
 
+  loopRenderSquare1(i){
+    var arr2 = [];
+    for (var j = 0; j < 3; j++) {
+      arr2.push(this.renderSquare(i+j))
+    }
+    return arr2
+  }
+
+
+  loopRenderSquare(){
+    var arr1 = [];
+    for (var i = 0; i < 9; i+=3) {
+      arr1.push(<div className="board-row">{this.loopRenderSquare1(i)}</div>)
+    }
+    return arr1
+  }
+
   render() {
     return (
       <div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
+        {this.loopRenderSquare()}
       </div>
     );
   }
@@ -52,6 +55,7 @@ class Game extends React.Component {
       }],
       stepNumber : 0,
       xIsNext: true,
+      isRev : false,
     };
   }
 
@@ -74,14 +78,30 @@ class Game extends React.Component {
     });
   }
 
+ 
+  
+
   render() {
-    const history = this.state.history;
+    var history = this.state.history;
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
 
+    const his_rev = (history) => {
+      Game.isRev ?
+      Game.isRev = false  :
+      Game.isRev = true;
+    };
+
+    let renderButton = () => {
+      return(Game.isRev ?
+        <ol>{moves.reverse()}</ol>:<ol>{moves}</ol>
+      )
+    
+    }
+   
     const moves = history.map((step, move) => {
-      const desc = move ?
-        'Go to move #' + move:
+      const desc = move?
+        'Go to move #' + move :
         'Go to game start';
 
         return(
@@ -94,10 +114,13 @@ class Game extends React.Component {
     let status;
     if (winner) {
       status = "Winner : " + winner;
+    } else if (this.state.stepNumber === 9)  {
+      status = "No Winner";
     } else {
       status = "Next player: " + (this.state.xIsNext ? "X" : "O");
     }
 
+   
     return (
       <div className="game">
         <div className="game-board">
@@ -107,8 +130,9 @@ class Game extends React.Component {
             />
         </div>
         <div className="game-info">
+          <button onClick={()=>history=his_rev(history)}>Reverse</button>
           <div>{status}</div>
-          <ol>{moves}</ol>
+          <ol>{renderButton()}</ol>
         </div>
       </div>
     );
